@@ -30,7 +30,7 @@ function App() {
           component={Home}
           options={{
             title: 'Home',
-            headerBackVisible: false,
+            headerShown: false
           }}
         />
         <Stack.Screen

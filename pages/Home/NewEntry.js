@@ -106,7 +106,10 @@ class NewEntry extends Component {
     return (
       <SafeAreaView style={{ flex: 1 }}>
         <WebView 
+        cacheEnabled={false}
           source={{ uri: 'http://2247208-bucket.s3-website-us-east-1.amazonaws.com/' }} 
+          style={{ flex: 1, width: '100%' }}
+          scalesPageToFit
         />
       </SafeAreaView>
     );

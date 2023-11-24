@@ -55,11 +55,9 @@ function Login({ navigation, auth }) {
 
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Kullanıcı başarıyla giriş yaptı
         const user = userCredential.user;
         Alert.alert('Success', 'Login successful!');
         navigation.navigate('Home');
-        // İstediğiniz yönlendirmeyi burada yapabilirsiniz
       })
       .catch((error) => {
         const errorCode = error.code;

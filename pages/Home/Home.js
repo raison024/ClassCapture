@@ -1,117 +1,108 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { supabase } from '../../supabase';
-import { TextInput, Button, FAB } from 'react-native-paper';
+import { TextInput, Button, FAB, BottomNavigation } from 'react-native-paper';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Students from './Students';
+import Subjects from './Subjects';
+import Profile from './Profile';
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo Icons
 
-export default function Home({ navigation }) {
-  const [students, setStudents] = useState([]);
-  const [totalStudents, setTotalStudents] = useState(0);
-
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  async function fetchStudents() {
-    try {
-      const { data, error, count } = await supabase
-        .from('students')
-        .select('stud_name, stud_rollno');
-
-      if (error) {
-        throw error;
-      }
-
-      setStudents(data || []);
-      setTotalStudents(count || 0);
-    } catch (error) {
-      console.error('Error fetching students:', error.message);
-    }
-  }
-
+function MyTabBar({ state, descriptors, navigation }) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Student List</Text>
-      <Text>Total Students: {totalStudents}</Text>
+    <View style={{ flexDirection: 'row', position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const label =
+          options.tabBarLabel !== undefined
+            ? options.tabBarLabel
+            : options.title !== undefined
+            ? options.title
+            : route.name;
 
-      {/* {students.map((student, index) => (
-        <View key={index} style={styles.studentContainer}>
-          <Text>Name: {student.stud_name}</Text>
-          <Text>Roll No: {student.stud_rollno}</Text>
-        </View>
-      ))} */}
+        const isFocused = state.index === index;
 
-      {students.map((student) => (
-        <View key={student.id || Math.random()} style={styles.studentContainer}>
-          <Text>Name: {student.stud_name}</Text>
-          <Text>Roll No: {student.stud_rollno}</Text>
-        </View>
-      ))}
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={() => navigation.navigate('NewEntry')}
-      />
+        const iconSize = 24; // Adjust the icon size as needed
+
+        const getIconName = (routeName) => {
+          switch (routeName) {
+            case 'Students':
+              return 'ios-people'; // Replace with the actual Ionicons name for Students
+            case 'Subjects':
+              return 'ios-book'; // Replace with the actual Ionicons name for Subjects
+            case 'Profile':
+              return 'ios-person'; // Replace with the actual Ionicons name for Profile
+            default:
+              return 'ios-information-circle';
+          }
+        };
+
+        const iconColor = isFocused ? '#673ab7' : '#222';
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        const onLongPress = () => {
+          navigation.emit({
+            type: 'tabLongPress',
+            target: route.key,
+          });
+        };
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            testID={options.tabBarTestID}
+            onPress={onPress}
+            onLongPress={onLongPress}
+            style={{ flex: 1, alignItems: 'center', padding: 16 }}
+          >
+            <Ionicons name={getIconName(route.name)} size={iconSize} color={iconColor} />
+            <Text style={{ color: iconColor }}>
+              {label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    alignItems: 'center',
-  },
-  header: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  studentContainer: {
-    marginTop: 10,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 5,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 30,
-    right: 0,
-    bottom: 0,
+const Tab = createBottomTabNavigator();
+
+export default function Home({ navigation }) {
+  const handleSignout = () => {
+    Alert.alert('Success', 'Successfully Signed out');
+    navigation.navigate('Login');
   }
-});
 
+  const handleNewEntry = () => {
+    navigation.navigate('NewEntry');
+  }
 
-
-// import * as React from 'react';
-// import { View, Text, StyleSheet } from 'react-native';
-
-// import { TextInput, Button, FAB } from 'react-native-paper';
-
-// function Home({ navigation }) {
-//   const [text, setText] = React.useState("");
-//   return (
-//     <View style={{ flex: 1, alignItems: 'start', justifyContent: 'center', paddingHorizontal: 20 }}>
-//       <Text>Attendance Dashboard</Text>
-
-//     </View>
-//   )
-// }
-
-
-
-// <FAB
-//   icon="plus"
-//   style={styles.fab}
-//   onPress={() => console.log('Pressed')}
-// />
-
-// const styles = StyleSheet.create({
-//   fab: {
-//     position: 'absolute',
-//     margin: 30,
-//     right: 0,
-//     bottom: 0,
-//   }
-// });
-
-// export default Home
+  return (
+    <NavigationContainer independent={true}>
+      <Tab.Navigator tabBar={(props) => <MyTabBar {...props} />}>
+        <Tab.Screen name="Students">
+          {(props) => <Students {...props} handleNewEntry={handleNewEntry} />}
+        </Tab.Screen>
+        <Tab.Screen name="Subjects" component={Subjects} />
+        <Tab.Screen name="Profile">
+          {(props) => <Profile {...props} handleSignout={handleSignout} />}
+        </Tab.Screen>
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+}
