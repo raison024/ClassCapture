@@ -142,11 +142,12 @@
 
 
 import React, { useState } from 'react';
-import { View, Alert, StyleSheet } from 'react-native';
+import { View, Alert, StyleSheet, Image } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import RegImg from '../../assets/reg.png'
 
 import { firebaseConfig } from './firebaseConfig'; // Firebase configuration file
 
@@ -178,20 +179,23 @@ function Reg({ navigation, auth }) {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+      <Image
+        style={styles.ImageLogo}
+        source={RegImg} />
       <TextInput
         placeholder="Email"
         onChangeText={(text) => setEmail(text)}
         value={email}
-        style={{ width: '100%', marginBottom: 10, borderBottomWidth: 1 }}
+        style={{ width: '100%', marginBottom: 10, borderBottomWidth: 0 }}
       />
       <TextInput
         placeholder="Password"
         onChangeText={(text) => setPassword(text)}
         value={password}
         secureTextEntry
-        style={{ width: '100%', marginBottom: 20, borderBottomWidth: 1 }}
+        style={{ width: '100%', marginBottom: 20, borderBottomWidth: 0 }}
       />
-      
+
       <Button
         onPress={handleRegister}
         mode='contained'
@@ -215,5 +219,17 @@ function Reg({ navigation, auth }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  input: {
+    width: '100%',
+    marginVertical: 10
+  },
+  ImageLogo: {
+    width: '100%',
+    height: '50%',
+    marginBottom: 20
+  }
+});
 
 export default Reg

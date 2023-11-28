@@ -6,6 +6,7 @@ import { supabase } from '../../supabase';
 export default function Students({ navigation, handleNewEntry }) {
   const [students, setStudents] = useState([]);
   const [totalStudents, setTotalStudents] = useState(0);
+  const [defaulters, setDefaulters] = useState([]);
 
   useEffect(() => {
     fetchStudents(); // Fetch students on initial load
@@ -13,7 +14,7 @@ export default function Students({ navigation, handleNewEntry }) {
     // Set up interval to fetch students every 1 minute
     const intervalId = setInterval(() => {
       fetchStudents();
-    }, 20000); // 60000 milliseconds = 1 minute
+    }, 60000); // 60000 milliseconds = 1 minute
 
     // Clear the interval on component unmount to avoid memory leaks
     return () => clearInterval(intervalId);
@@ -32,6 +33,13 @@ export default function Students({ navigation, handleNewEntry }) {
 
       setStudents(data || []);
       setTotalStudents(data ? data.length : 0);
+
+      // Filter students with less than 75% attendance
+      const defaulterStudents = data.filter(
+        (student) => calculateAttendancePercentage(student.curr_att, student.total_att) < 40
+      );
+
+      setDefaulters(defaulterStudents);
     } catch (error) {
       console.error('Error fetching students:', error.message);
     }
@@ -49,6 +57,16 @@ export default function Students({ navigation, handleNewEntry }) {
           <Text>Attendance Percentage: {calculateAttendancePercentage(student.curr_att, student.total_att)}%</Text>
         </View>
       ))}
+
+      <Text style={styles.header}>Defaulters</Text>
+      {defaulters.map((defaulter) => (
+        <View key={defaulter.id || Math.random()} style={styles.studentContainer}>
+          <Text>Name: {defaulter.stud_name}</Text>
+          <Text>Roll No: {defaulter.stud_rollno}</Text>
+          <Text>Attendance Percentage: {calculateAttendancePercentage(defaulter.curr_att, defaulter.total_att)}%</Text>
+        </View>
+      ))}
+
       <FAB
         icon="plus"
         style={styles.fab}
@@ -68,6 +86,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    marginTop: 10
   },
   studentContainer: {
     width: '100%',
