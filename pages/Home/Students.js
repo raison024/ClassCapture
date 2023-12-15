@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { FAB } from 'react-native-paper';
 import { supabase } from '../../supabase';
 
@@ -24,7 +24,7 @@ export default function Students({ navigation, handleNewEntry }) {
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('stud_name, stud_rollno, curr_att, total_att')
+        .select('stud_name, stud_rollno, curr_att, total_att, curr_java, total_java, curr_c, total_c, curr_python, total_python')
         .order('stud_rollno');
 
       if (error) {
@@ -47,25 +47,26 @@ export default function Students({ navigation, handleNewEntry }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>All Students</Text>
-      <Text>Total Students: {totalStudents}</Text>
 
-      {students.map((student) => (
-        <View key={student.id || Math.random()} style={styles.studentContainer}>
-          <Text>Name: {student.stud_name}</Text>
-          <Text>Roll No: {student.stud_rollno}</Text>
-          <Text>Attendance Percentage: {calculateAttendancePercentage(student.curr_att, student.total_att)}%</Text>
-        </View>
-      ))}
+      <ScrollView style={styles.scrollView}>
+        <Text style={styles.header}>All Students</Text>
+        <Text>Total Students: {totalStudents}</Text>
 
-      <Text style={styles.header}>Defaulters</Text>
-      {defaulters.map((defaulter) => (
-        <View key={defaulter.id || Math.random()} style={styles.studentContainer}>
-          <Text>Name: {defaulter.stud_name}</Text>
-          <Text>Roll No: {defaulter.stud_rollno}</Text>
-          <Text>Attendance Percentage: {calculateAttendancePercentage(defaulter.curr_att, defaulter.total_att)}%</Text>
-        </View>
-      ))}
+        {students.map((student) => (
+          <View key={student.id || Math.random()} style={styles.studentContainer}>
+            <Text>Name: {student.stud_name}</Text>
+            <Text>Roll No: {student.stud_rollno}</Text>
+            <Text>Total Percentage: {calculateAttendancePercentage(student.curr_att, student.total_att)}%</Text>
+
+            <Text>
+              Java: {calculateAttendancePercentage(student.curr_java, student.total_java)}% &nbsp;
+              C: {calculateAttendancePercentage(student.curr_c, student.total_c)}% &nbsp;
+              Python: {calculateAttendancePercentage(student.curr_python, student.total_python)}%
+            </Text>
+          </View>
+        ))}
+
+      </ScrollView>
 
       <FAB
         icon="plus"
@@ -80,7 +81,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    alignItems: 'start',
+    alignItems: 'start'
+  },
+  scrollView: {
+    height: '50%',
+    width: '100%'
   },
   header: {
     fontSize: 20,
@@ -110,3 +115,4 @@ function calculateAttendancePercentage(currAtt, totalAtt) {
   }
   return ((currAtt / totalAtt) * 100).toFixed(2);
 }
+

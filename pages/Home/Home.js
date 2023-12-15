@@ -8,18 +8,19 @@ import Students from './Students';
 import Subjects from './Subjects';
 import Profile from './Profile';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo Icons
+import Defaulters from './Defaulters';
 
 function MyTabBar({ state, descriptors, navigation }) {
   return (
-    <View style={{ flexDirection: 'row', position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+    <View style={{ flexDirection: 'row', position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#fff' }}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
           options.tabBarLabel !== undefined
             ? options.tabBarLabel
             : options.title !== undefined
-            ? options.title
-            : route.name;
+              ? options.title
+              : route.name;
 
         const isFocused = state.index === index;
 
@@ -28,7 +29,9 @@ function MyTabBar({ state, descriptors, navigation }) {
         const getIconName = (routeName) => {
           switch (routeName) {
             case 'Students':
-              return 'ios-people'; // Replace with the actual Ionicons name for Students
+              return 'ios-people';
+            case 'Def':
+              return 'warning'; // Replace with the actual Ionicons name for Students
             case 'Subjects':
               return 'ios-book'; // Replace with the actual Ionicons name for Subjects
             case 'Profile':
@@ -98,6 +101,7 @@ export default function Home({ navigation }) {
         <Tab.Screen name="Students">
           {(props) => <Students {...props} handleNewEntry={handleNewEntry} />}
         </Tab.Screen>
+        <Tab.Screen name="Def" component={Defaulters} />
         <Tab.Screen name="Subjects" component={Subjects} />
         <Tab.Screen name="Profile">
           {(props) => <Profile {...props} handleSignout={handleSignout} />}
